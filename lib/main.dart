@@ -1,8 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:goal_grow_flutter/create_goal_widget.dart';
 import 'package:goal_grow_flutter/goal_widget.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:goal_grow_flutter/services/check_service.dart';
+import 'package:goal_grow_flutter/services/goal_service.dart';
+import 'firebase_options.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(const MainApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(
+        create: (context) => GoalService(),
+      ),
+      ChangeNotifierProvider(
+        create: (context) => CheckService(),
+      )
+    ],
+    child: const MainApp(),
+  ));
 }
 
 class MainApp extends StatelessWidget {
@@ -27,7 +47,7 @@ class MainApp extends StatelessWidget {
           body: const TabBarView(
             children: [
               GoalWidget(),
-              Icon(Icons.plus_one),
+              CreateGoalWidget(),
               Icon(Icons.directions_bike),
             ],
           ),

@@ -5,6 +5,7 @@ import 'package:goal_grow_flutter/models/goal.dart';
 import 'package:goal_grow_flutter/models/progress.dart';
 import 'package:goal_grow_flutter/services/check_service.dart';
 import 'package:goal_grow_flutter/services/goal_service.dart';
+import 'package:provider/provider.dart';
 
 class GoalWidget extends StatefulWidget {
   const GoalWidget({
@@ -16,46 +17,30 @@ class GoalWidget extends StatefulWidget {
 }
 
 class _GoalWidgetState extends State<GoalWidget> {
-  List<Goal> goals = [];
-  List<Check> checks = [];
-
-  void fetchGoals() async {
-    final fetchedGoals = await GoalService.fetchGoals();
-    setState(() {
-      goals = fetchedGoals;
-    });
-  }
-
-  void fetchChecks() async {
-    final fetchedChecks = await CheckService.fetchChecks();
-    setState(() {
-      checks = fetchedChecks;
-    });
-  }
-
   @override
   void initState() {
     super.initState();
-    fetchGoals();
-    fetchChecks();
   }
 
   @override
   Widget build(BuildContext context) {
-    final progresses =
-        DailyProgress(DateTime.now(), goals: goals, checks: checks);
-    return ListView(
-        children: progresses
-            .report()
-            .map((progress) => Card(
-                  child: ListTile(
-                    title: Text(progress.goal.title),
-                    subtitle: Text(progress.report()),
-                    dense: false,
-                    onTap: () => showCheckDialog(progress, context),
-                  ),
-                ))
-            .toList());
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return Consumer2<GoalService, CheckService>(
+        builder: (context, goalService, checkService, child) => ListView(
+            children: DailyProgress(DateTime.now(),
+                    goals: goalService.goals, checks: checkService.checks)
+                .report()
+                .map((progress) => Card(
+                      color: progress.total() > 0 ? colorScheme.primary :  colorScheme.surface,
+                      child: ListTile(
+                        textColor: progress.total() > 0 ? colorScheme.onPrimary :  colorScheme.onSurface,
+                        title: Text(progress.goal.title),
+                        subtitle: Text(progress.report()),
+                        dense: false,
+                        onTap: () => showCheckDialog(progress, context),
+                      ),
+                    ))
+                .toList()));
   }
 
   Future<String?> showCheckDialog(Progress progress, BuildContext context) {
@@ -109,6 +94,11 @@ class _CheckDialogState extends State<CheckDialog> {
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
+                    CheckService.createCheck(Check(
+                        id: "",
+                        goalId: widget.progress.goal.id,
+                        createdAt: DateTime.now(),
+                        amount: double.parse(_controller.text)));
                   },
                   child: const Text('Submit'),
                 ),

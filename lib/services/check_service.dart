@@ -1,12 +1,44 @@
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:goal_grow_flutter/firebase_options.dart';
 import 'package:goal_grow_flutter/models/check.dart';
 
-class CheckService {
-  static Future<List<Check>> fetchChecks() async {
-    return [
-      Check(id: 1, goalId: 1, createdAt: DateTime.now(), amount: 300),
-      Check(id: 2, goalId: 1, createdAt: DateTime.now(), amount: 100),
-      Check(id: 3, goalId: 1, createdAt: DateTime.now(), amount: 50),
-    ];
+class CheckService extends ChangeNotifier {
+  List<Check> checks = [];
+
+  CheckService() {
+    init();
+  }
+
+  Future<void> init() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    FirebaseFirestore.instance
+        .collection('check')
+        .snapshots()
+        .listen((snapshot) {
+      checks = [];
+      for (final document in snapshot.docs) {
+        checks.add(Check(
+          id: document.id,
+          goalId: document.data()['goalId'],
+          createdAt: document.data()['createdAt'].toDate(),
+          amount: document.data()['amount'].toDouble(),
+        ));
+      }
+
+      notifyListeners();
+    });
+  }
+
+  static Future<DocumentReference> createCheck(Check check) async {
+    return FirebaseFirestore.instance.collection("check").add(<String, dynamic>{
+      'goalId': check.goalId,
+      'createdAt': Timestamp.fromDate(check.createdAt),
+      'amount': check.amount,
+    });
   }
 }

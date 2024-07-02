@@ -1,6 +1,6 @@
 class Check {
-  final int id;
-  final int goalId;
+  final String id;
+  final String goalId;
   final DateTime createdAt;
   final double amount;
 

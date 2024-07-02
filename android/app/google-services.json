@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "280570588844",
+    "project_id": "goal-grow",
+    "storage_bucket": "goal-grow.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:280570588844:android:b269d048291db6f3063909",
+        "android_client_info": {
+          "package_name": "com.example.goal_grow_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-ZdK8C84fBPGnTFuS_cJriArtvqmuNgQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

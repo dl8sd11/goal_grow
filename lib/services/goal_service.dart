@@ -1,73 +1,43 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:goal_grow_flutter/firebase_options.dart';
 import 'package:goal_grow_flutter/models/goal.dart';
 
-class GoalService {
-  // Replace with your actual API endpoint
-  static const String baseUrl = 'https://your-api.com/goals';
+class GoalService extends ChangeNotifier {
+  List<Goal> goals = [];
 
-  static Future<List<Goal>> fetchGoals() async {
-    return [
-      Goal(
-          id: 1,
-          title: "drink water",
-          startDate: DateTime(2002, 6, 7, 5, 0),
-          description: "I drank ? mL of water today."),
-      Goal(
-          id: 2,
-          title: "pushups",
-          startDate: DateTime(2002, 6, 7, 5, 0),
-          description: "I did ? push-ups today."),
-      Goal(
-          id: 3,
-          title: "read",
-          startDate: DateTime(2002, 6, 7, 5, 0),
-          description: "I read ? minutes today."),
-      Goal(
-          id: 4,
-          title: "drink water",
-          startDate: DateTime(2002, 6, 7, 5, 0),
-          description: "I drank ? mL of water today."),
-      Goal(
-          id: 5,
-          title: "pushups",
-          startDate: DateTime(2002, 6, 7, 5, 0),
-          description: "I did ? push-ups today."),
-      Goal(
-          id: 6,
-          title: "read",
-          startDate: DateTime(2002, 6, 7, 5, 0),
-          description: "I read ? minutes today."),
-      Goal(
-          id: 7,
-          title: "drink water",
-          startDate: DateTime(2002, 6, 7, 5, 0),
-          description: "I drank ? mL of water today."),
-      Goal(
-          id: 8,
-          title: "pushups",
-          startDate: DateTime(2002, 6, 7, 5, 0),
-          description: "I did ? push-ups today."),
-      Goal(
-          id: 9,
-          title: "read",
-          startDate: DateTime(2002, 6, 7, 5, 0),
-          description: "I read ? minutes today."),
-      Goal(
-          id: 10,
-          title: "read",
-          startDate: DateTime(2002, 6, 7, 5, 0),
-          description: "I read ? minutes today."),
-    ];
+  GoalService() {
+    init();
   }
 
-  static Future<Goal> createGoal(Goal goal) async {
-    return goal;
+  Future<void> init() async {
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
+
+    FirebaseFirestore.instance
+        .collection('goal')
+        .snapshots()
+        .listen((snapshot) {
+      goals = [];
+      for (final document in snapshot.docs) {
+        goals.add(Goal(
+          id: document.id,
+          title: document.data()['title'],
+          description: document.data()['description'],
+          startDate: document.data()['startDate'].toDate(),
+        ));
+      }
+
+      notifyListeners();
+    });
   }
 
-  static Future<Goal> updateGoal(Goal goal) async {
-    return goal;
-  }
-
-  static Future<void> deleteGoal(int id) async {
-    return;
+  static Future<DocumentReference> createGoal(Goal goal) async {
+    return FirebaseFirestore.instance.collection("goal").add(<String, dynamic>{
+      'title': goal.title,
+      'description': goal.description,
+      'startDate': Timestamp.fromDate(goal.startDate),
+    });
   }
 }
