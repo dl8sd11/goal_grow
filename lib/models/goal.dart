@@ -10,4 +10,5 @@ class Goal {
     required this.startDate,
     required this.description,
   });
+
 }

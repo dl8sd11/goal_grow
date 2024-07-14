@@ -3,12 +3,12 @@ import 'package:goal_grow_flutter/models/check.dart';
 import 'package:goal_grow_flutter/models/goal.dart';
 import 'package:goal_grow_flutter/models/progress.dart';
 
-class DailyProgress {
+class ProgressesOfDay {
   final List<Goal> goals;
   final List<Check> checks;
   final DateTime date;
 
-  DailyProgress(this.date, {required this.goals, required this.checks});
+  ProgressesOfDay(this.date, {required this.goals, required this.checks});
 
   List<Progress> report() {
     List<Progress> progresses = [];

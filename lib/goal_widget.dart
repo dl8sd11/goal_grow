@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:goal_grow_flutter/models/check.dart';
-import 'package:goal_grow_flutter/models/daily_progress.dart';
-import 'package:goal_grow_flutter/models/goal.dart';
+import 'package:goal_grow_flutter/models/progresses_of_day.dart';
 import 'package:goal_grow_flutter/models/progress.dart';
 import 'package:goal_grow_flutter/services/check_service.dart';
 import 'package:goal_grow_flutter/services/goal_service.dart';
@@ -27,13 +26,17 @@ class _GoalWidgetState extends State<GoalWidget> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Consumer2<GoalService, CheckService>(
         builder: (context, goalService, checkService, child) => ListView(
-            children: DailyProgress(DateTime.now(),
+            children: ProgressesOfDay(DateTime.now(),
                     goals: goalService.goals, checks: checkService.checks)
                 .report()
                 .map((progress) => Card(
-                      color: progress.total() > 0 ? colorScheme.primary :  colorScheme.surface,
+                      color: progress.total() > 0
+                          ? colorScheme.primary
+                          : colorScheme.surface,
                       child: ListTile(
-                        textColor: progress.total() > 0 ? colorScheme.onPrimary :  colorScheme.onSurface,
+                        textColor: progress.total() > 0
+                            ? colorScheme.onPrimary
+                            : colorScheme.onSurface,
                         title: Text(progress.goal.title),
                         subtitle: Text(progress.report()),
                         dense: false,
@@ -61,17 +64,20 @@ class CheckDialog extends StatefulWidget {
 }
 
 class _CheckDialogState extends State<CheckDialog> {
-  late TextEditingController _controller;
+  late TextEditingController _amount_controller;
+  late TextEditingController _quantity_controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
+    _amount_controller = TextEditingController();
+    _quantity_controller = TextEditingController();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _amount_controller.dispose();
+    _quantity_controller.dispose();
     super.dispose();
   }
 
@@ -86,7 +92,15 @@ class _CheckDialogState extends State<CheckDialog> {
           children: <Widget>[
             Text('Check in: ${widget.progress.goal.title}'),
             const SizedBox(height: 15),
-            TextField(controller: _controller),
+            TextField(
+              controller: _amount_controller,
+              decoration: const InputDecoration(hintText: "amount: 5kg"),
+            ),
+            const SizedBox(height: 15),
+            TextField(
+              controller: _quantity_controller,
+              decoration: const InputDecoration(hintText: "quantity: 5reps"),
+            ),
             const SizedBox(height: 15),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -94,11 +108,16 @@ class _CheckDialogState extends State<CheckDialog> {
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    CheckService.createCheck(Check(
-                        id: "",
-                        goalId: widget.progress.goal.id,
-                        createdAt: DateTime.now(),
-                        amount: double.parse(_controller.text)));
+                    for (int i = 0;
+                        i < (int.tryParse(_quantity_controller.text) ?? 1);
+                        i++) {
+                      CheckService.createCheck(Check(
+                          id: "",
+                          goalId: widget.progress.goal.id,
+                          createdAt: DateTime.now(),
+                          amount:
+                              (double.tryParse(_amount_controller.text)) ?? 1));
+                    }
                   },
                   child: const Text('Submit'),
                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goal_grow_flutter/analysis_widget.dart';
 import 'package:goal_grow_flutter/create_goal_widget.dart';
 import 'package:goal_grow_flutter/goal_widget.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -48,7 +49,7 @@ class MainApp extends StatelessWidget {
             children: [
               GoalWidget(),
               CreateGoalWidget(),
-              Icon(Icons.directions_bike),
+              AnalysisWidget(),
             ],
           ),
         ),
